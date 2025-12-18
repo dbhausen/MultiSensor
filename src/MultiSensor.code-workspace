@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../Calibration"
+		},
+		{
+			"name": "MultiSensor",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
