@@ -97,7 +97,6 @@ void loop() {
     // Serial.print(":");
     // // Serial.print(z);
     // Serial.println(":C:red|");
-
     // tp.plotXY("Compass", x, y);
     // tp.plotCube("Compass3D", x, y, z);
 
