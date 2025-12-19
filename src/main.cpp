@@ -88,7 +88,7 @@ void loop() {
     Serial.println(direction);
 
     i += 1;
-
+    // bad change
     // Serial.print(">3D|my_super_cube2:S:cube:W:5:D:5:H:5:");
     // Serial.print(":R:");
     // // Serial.print(x);

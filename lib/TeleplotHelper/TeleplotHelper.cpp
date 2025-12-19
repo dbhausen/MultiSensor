@@ -4,7 +4,7 @@ TeleplotHelper::TeleplotHelper(HardwareSerial &s, bool noPrint) {
   serial = &s;
   this->noPrint = noPrint;
 }
-
+// good change
 void TeleplotHelper::setNoPrint(bool value) { this->noPrint = value; }
 bool TeleplotHelper::getNoPrint() { return this->noPrint; }
 
