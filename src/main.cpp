@@ -5,13 +5,30 @@
 #include <Adafruit_LSM6DS3.h>
 
 #include <QMC5883LCompass.h>
+#ifndef DEBUG_AVR_STUB
 #include <TeleplotHelper.h>
+#endif
 #include <TinyGPS++.h>
+#ifdef DEBUG_AVR_STUB
+#include <avr8-stub.h>
+#endif
+
+#ifdef DEBUG_AVR_STUB
+class NullPrint : public Print {
+public:
+  size_t write(uint8_t) override { return 1; }
+  size_t write(const uint8_t *buffer, size_t size) override { return size; }
+};
+
+static NullPrint NullSerial;
+#define Serial NullSerial
+#endif
 
 void printCompass(char direction[3], int x, int y, int z, int azimuth);
 void myPrintAccelerometer(sensors_event_t &accel, sensors_event_t &gyro,
                           sensors_event_t &temp);
 void printGPSData();
+void printShortGPSData();
 
 Adafruit_LSM6DS3 lsm6ds3;
 QMC5883LCompass compass;
@@ -28,7 +45,9 @@ bool ledState = LOW;
 bool compassInitialized = false;
 bool declinationSet = false;
 
+#ifndef DEBUG_AVR_STUB
 TeleplotHelper tp = TeleplotHelper(Serial, false);
+#endif
 
 SoftwareSerial gpsSerial(4, 3); // RX, TX
 // CFG-RATE packet template (little-endian periods/ratios)
@@ -158,7 +177,12 @@ bool readCfgRate(Stream &gps, uint16_t &measRateMs, uint16_t &navRate,
 }
 
 void setup() {
-  Serial.begin(9600);
+#ifdef DEBUG_AVR_STUB
+  debug_init();
+#endif
+#ifndef DEBUG_AVR_STUB
+  Serial.begin(115200);
+#endif
   gpsSerial.begin(9600);
   delay(2000);
 
@@ -208,7 +232,7 @@ void loop() {
   while (gpsSerial.available() > 0) {
     if (gps.encode(gpsSerial.read())) {
       if (gps.location.isUpdated()) {
-        // printGPSData();
+        // printShortGPSData();
         gpsCount++;
       }
     }
@@ -222,16 +246,13 @@ void loop() {
 
     sensors_event_t accel, gyro, temp;
     if (lsm6ds3.getEvent(&accel, &gyro, &temp)) {
-      // myPrintAccelerometer(accel, gyro, temp);
+      myPrintAccelerometer(accel, gyro, temp);
     } else {
       Serial.println("Failed to read from LSM6DS3 sensor!");
     }
 
     // Read compass data
     compass.read();
-    int x = compass.getX();
-    int y = compass.getY();
-    int z = compass.getZ();
     int azimuth = compass.getAzimuth();
     char direction[3];
     compass.getDirection(direction, azimuth);
@@ -240,17 +261,6 @@ void loop() {
     compass.getBearing(azimuth);
 
     i += 1;
-    // bad change
-    // Serial.print(">3D|my_super_cube2:S:cube:W:5:D:5:H:5:");
-    // Serial.print(":R:");
-    // // Serial.print(x);
-    // Serial.print(":");
-    // Serial.print(y);
-    // Serial.print(":");
-    // // Serial.print(z);
-    // Serial.println(":C:red|");
-    // tp.plotXY("Compass", x, y);
-    // tp.plotCube("Compass3D", x, y, z);
 
     compassCount++;
   }
@@ -259,10 +269,10 @@ void loop() {
     previousLedMillis = currentMillis;
     ledState = !ledState;
     digitalWrite(LED_BUILTIN, ledState);
-    Serial.print("GPS Reads: ");
-    Serial.print(gpsCount);
-    Serial.print(" | Compass Reads: ");
-    Serial.println(compassCount);
+    // Serial.print("GPS Reads: ");
+    // Serial.print(gpsCount);
+    // Serial.print(" | Compass Reads: ");
+    // Serial.println(compassCount);
   }
 }
 
@@ -312,6 +322,18 @@ void myPrintAccelerometer(sensors_event_t &accel, sensors_event_t &gyro,
 
   Serial.println();
 }
+
+void printShortGPSData() {
+  if (gps.location.isValid()) {
+    Serial.print("Lat: ");
+    Serial.print(gps.location.lat(), 6);
+    Serial.print(" Lng: ");
+    Serial.println(gps.location.lng(), 6);
+  } else {
+    Serial.println("GPS: Waiting for fix...");
+  }
+}
+
 void printGPSData() {
   if (gps.location.isValid()) {
 

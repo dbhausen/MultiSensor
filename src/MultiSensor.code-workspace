@@ -6,6 +6,10 @@
 		{
 			"name": "MultiSensor",
 			"path": ".."
+		},
+		{
+			"name": "Can",
+			"path": "../../Can/Can"
 		}
 	],
 	"settings": {}
