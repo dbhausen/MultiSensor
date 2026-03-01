@@ -39,7 +39,7 @@ unsigned long gpsCount = 0;
 unsigned long compassCount = 0;
 unsigned long previousMillis = 0;
 unsigned long previousLedMillis = 0;
-const long interval = 250;
+const long interval = 50;
 const long ledInterval = 1000;
 bool ledState = LOW;
 bool compassInitialized = false;
@@ -181,13 +181,13 @@ void setup() {
   debug_init();
 #endif
 #ifndef DEBUG_AVR_STUB
-  Serial.begin(115200);
+  Serial.begin(9600);
 #endif
   gpsSerial.begin(9600);
   delay(2000);
 
-  // sendCfgRate(gpsSerial, 1000); // Set GPS to 1 Hz updates
-  // sendCfgCfgSave(gpsSerial);    // Save configuration to flash
+  sendCfgRate(gpsSerial, 1000); // Set GPS to 1 Hz updates
+  sendCfgCfgSave(gpsSerial);    // Save configuration to flash
   Serial.println("LSM6DS3 Test + GPS Test + Compass Test ");
   uint16_t measRate, navRate, timeRef;
   if (readCfgRate(gpsSerial, measRate, navRate, timeRef)) {
@@ -214,6 +214,7 @@ void setup() {
   compass.setMagneticDeclination(11, 3); // 11° 3' W
   compass.setSmoothing(5, true);
   Serial.println("QMC5883L Compass initialized!");
+  delay(2000);
 }
 
 void loop() {
@@ -304,21 +305,21 @@ void myPrintAccelerometer(sensors_event_t &accel, sensors_event_t &gyro,
   Serial.print(accel.acceleration.z);
   Serial.println(" m/s^2");
 
-  Serial.print("Gyro X: ");
-  Serial.print(gyro.gyro.x);
-  Serial.print(" Y: ");
-  Serial.print(gyro.gyro.y);
-  Serial.print(" Z: ");
-  Serial.print(gyro.gyro.z);
-  Serial.println(" rad/s");
+  // Serial.print("Gyro X: ");
+  // Serial.print(gyro.gyro.x);
+  // Serial.print(" Y: ");
+  // Serial.print(gyro.gyro.y);
+  // Serial.print(" Z: ");
+  // Serial.print(gyro.gyro.z);
+  // Serial.println(" rad/s");
 
-  Serial.print("Temp: ");
-  Serial.print(temp.temperature);
-  Serial.println(" C");
+  // Serial.print("Temp: ");
+  // Serial.print(temp.temperature);
+  // Serial.println(" C");
 
-  Serial.print("Temp: ");
-  Serial.print(fahrenheit);
-  Serial.println(" F");
+  // Serial.print("Temp: ");
+  // Serial.print(fahrenheit);
+  // Serial.println(" F");
 
   Serial.println();
 }
